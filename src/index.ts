@@ -1,6 +1,7 @@
-import { helloWorld } from "./helper.ts";
+import { JobQueue } from "./classes/job-queue.js";
 
-const main = () => {
-  helloWorld();
-};
-main();
+const jobQueue = new JobQueue();
+
+console.log("Job Queue Concurrency Limit:", jobQueue.getConcurrencyLimit());
+console.log("Job Queue Rate Limit:", jobQueue.getRateLimit());
+console.log("Job Queue Timeout Limit:", jobQueue.getTimeoutLimit());

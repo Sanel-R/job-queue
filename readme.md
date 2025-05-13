@@ -18,3 +18,4 @@
         "noEmit": true,
         "allowImportingTsExtensions": true,
    ```
+- **To open markdown just click ctrl + shift + v**
