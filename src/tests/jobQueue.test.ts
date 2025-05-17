@@ -1,4 +1,3 @@
-// src/tests/jobQueue.test.ts
 import { JobQueue } from "../classes/JobQueue.js"; // Adjust the import path as necessary
 
 /**
@@ -104,7 +103,6 @@ const createFailJob =
  * Test cases
  */
 async function runTests() {
-  // Basic functionality
   await test.run("Basic job scheduling and execution", async () => {
     const queue = new JobQueue();
     test.log(`Created queue with default options`);
@@ -573,8 +571,7 @@ async function runTests() {
 // Run all tests
 console.log("🚀 Starting JobQueue Tests...");
 console.time("Tests Duration");
-
-(async () => {
+async () => {
   try {
     await runTests();
     console.timeEnd("Tests Duration");
@@ -584,4 +581,4 @@ console.time("Tests Duration");
     console.error(error);
     process.exit(1);
   }
-})();
+};
