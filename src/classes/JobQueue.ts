@@ -1,12 +1,4 @@
-import { JobQueueOptions, JobResult } from "../types/types.js";
-
-type Job<T> = {
-  fn: (...args: any[]) => Promise<T>;
-  args: any[];
-  resolve: (value: JobResult<T>) => void;
-  reject: (reason?: any) => void;
-  queueTime: number;
-};
+import { JobQueueOptions, JobResult, Job } from "../types/types.js";
 
 export class JobQueue {
   private concurrencyLimit: number;
@@ -82,6 +74,7 @@ export class JobQueue {
   }
 
   private async processQueue(): Promise<void> {
+    let timedOut = false;
     if (
       this.isDisposed ||
       this.queue.length === 0 ||
@@ -113,7 +106,6 @@ export class JobQueue {
 
       // Set up timeout if needed
       let timeoutId: NodeJS.Timeout | null = null;
-      let timedOut = false;
 
       if (this.timeoutLimit > 0) {
         timeoutId = setTimeout(() => {

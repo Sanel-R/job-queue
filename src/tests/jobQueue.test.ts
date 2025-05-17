@@ -1,5 +1,5 @@
 // src/tests/jobQueue.test.ts
-import { JobQueue } from "./job-queue.js";
+import { JobQueue } from "../classes/JobQueue.js"; // Adjust the import path as necessary
 
 /**
  * Simple test framework functions
@@ -158,9 +158,9 @@ async function runTests() {
 
   // Queue size and active count
   await test.run("Queue size and active count tracking", async () => {
-    const concurrencyLimit = 2;
-    const queue = new JobQueue({ concurrencyLimit });
-    test.log(`Created queue with concurrency limit of ${concurrencyLimit}`);
+    const maxConcurrency = 2;
+    const queue = new JobQueue({ maxConcurrency });
+    test.log(`Created queue with concurrency limit of ${maxConcurrency}`);
 
     // Initially the queue should be empty
     test.assert(
@@ -248,9 +248,9 @@ async function runTests() {
 
   // Concurrency limit
   await test.run("Concurrency limit enforcement", async () => {
-    const concurrencyLimit = 3;
-    const queue = new JobQueue({ concurrencyLimit });
-    test.log(`Created queue with concurrency limit of ${concurrencyLimit}`);
+    const maxConcurrency = 3;
+    const queue = new JobQueue({ maxConcurrency });
+    test.log(`Created queue with concurrency limit of ${maxConcurrency}`);
 
     let maxConcurrent = 0;
     let currentConcurrent = 0;
@@ -285,8 +285,8 @@ async function runTests() {
     await Promise.all(promises);
 
     test.assert(
-      maxConcurrent === concurrencyLimit,
-      `Max concurrent jobs should be ${concurrencyLimit}, got ${maxConcurrent}`
+      maxConcurrent === maxConcurrency,
+      `Max concurrent jobs should be ${maxConcurrency}, got ${maxConcurrent}`
     );
     test.assert(
       currentConcurrent === 0,
@@ -398,7 +398,7 @@ async function runTests() {
 
   // Execution order (FIFO)
   await test.run("Execution order (FIFO)", async () => {
-    const queue = new JobQueue({ concurrencyLimit: 1 });
+    const queue = new JobQueue({ maxConcurrency: 1 });
     test.log(`Created queue with concurrency limit of 1 to test FIFO ordering`);
 
     const executionOrder: number[] = [];
@@ -441,7 +441,7 @@ async function runTests() {
 
   // Dispose
   await test.run("Dispose behavior with pending jobs", async () => {
-    const queue = new JobQueue({ concurrencyLimit: 1 });
+    const queue = new JobQueue({ maxConcurrency: 1 });
     test.log(`Created queue with concurrency limit of 1`);
 
     // Start one long-running job
@@ -508,8 +508,8 @@ async function runTests() {
 
   // Multiple concurrent queues
   await test.run("Multiple concurrent queues", async () => {
-    const queue1 = new JobQueue({ concurrencyLimit: 2 });
-    const queue2 = new JobQueue({ concurrencyLimit: 3 });
+    const queue1 = new JobQueue({ maxConcurrency: 2 });
+    const queue2 = new JobQueue({ maxConcurrency: 3 });
     test.log(`Created two queues with different concurrency limits`);
 
     // Track job execution per queue
@@ -574,12 +574,14 @@ async function runTests() {
 console.log("🚀 Starting JobQueue Tests...");
 console.time("Tests Duration");
 
-try {
-  await runTests();
-  console.timeEnd("Tests Duration");
-  test.summary();
-} catch (error) {
-  console.error("❌ Unhandled error in test suite:");
-  console.error(error);
-  process.exit(1);
-}
+(async () => {
+  try {
+    await runTests();
+    console.timeEnd("Tests Duration");
+    test.summary();
+  } catch (error) {
+    console.error("❌ Unhandled error in test suite:");
+    console.error(error);
+    process.exit(1);
+  }
+})();
