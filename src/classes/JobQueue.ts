@@ -6,7 +6,6 @@ export class JobQueue {
   private timeoutLimit: number;
   private activeJobs: number = 0;
   private queue: Job<any>[] = [];
-  private lastRateLimitTime: number = 0;
   private isDisposed: boolean = false;
   private rateLimitWindowStart: number = 0;
   private jobsInCurrentWindow: number = 0;
@@ -167,7 +166,7 @@ export class JobQueue {
 
   public constructor(options?: JobQueueOptions) {
     this.concurrencyLimit = options?.maxConcurrency ?? 1000;
-    this.rateLimit = options?.rateLimit ?? Infinity; // infinity
+    this.rateLimit = options?.rateLimit ?? Infinity;
     this.timeoutLimit =
       options?.timeoutLimit !== undefined ? options.timeoutLimit * 1000 : 12000;
   }

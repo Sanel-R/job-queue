@@ -1,4 +1,4 @@
-import { JobQueue } from "../classes/JobQueue.js"; // Adjust the import path as necessary
+import { JobQueue } from "../classes/JobQueue.js";
 
 /**
  * Simple test framework functions

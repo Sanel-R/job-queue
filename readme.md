@@ -48,9 +48,9 @@ project/
       npm test
       npm test:watch
     ```
-  - **Debug test**
-    ```
-      npm clean
-    ```
-## Chrome dev for inspection
-   chrome://inspect/#devices
+- **Debug test**
+  ```
+    npm clean
+  ```
+## Test image
+![Test image](./image/test_images.png)
