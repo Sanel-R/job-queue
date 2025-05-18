@@ -10,10 +10,14 @@
     "clean": "rimraf dist",
     "build": "npm run clean && tsc"
   },
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2017"
+  },
   "keywords": [],
-  "author": "",
+  "author": "Sanele Mkhize <",
   "license": "ISC",
-  "description": "",
+  "description": "Package for job queue implementation",
   "devDependencies": {
     "@types/node": "^22.15.18",
     "cross-env": "^7.0.3",

@@ -34,16 +34,27 @@
    ```
 
 ## Project Structure
-example/
-  ├ …
-  ├ src/
-    ├ app/…
-    └ sw/…
-  └ test/
-    ├ globals/
-      ├ …
-      ├ IndexedDb.js
-      └ ServiceWorkerGlobalScope.js
-    ├ setup.mjs
-    ├ setup.units.mjs
-    └ setup.ui.mjs
+   PROE
+
+## Chrome dev for inspection
+   ```
+      chrome://inspect/#devices
+   ```
+## Project structure
+   ```bash
+   ├── project
+   │   ├── dist
+   │   ├── node_modules
+   │   ├── src
+   |   │   ├── classes
+   |   │   ├── types
+   |   │   ├── index.ts
+   │   ├── test
+   |   ├── .gitignore
+   |   ├── instructions.md
+   |   ├── package-lock.json
+   |   ├── package.json
+   |   ├── readme.md
+   |   ├── tsconfig.json
+   |── └── 
+   ```

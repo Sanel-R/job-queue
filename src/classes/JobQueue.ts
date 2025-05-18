@@ -8,6 +8,8 @@ export class JobQueue {
   private queue: Job<any>[] = [];
   private lastRateLimitTime: number = 0;
   private isDisposed: boolean = false;
+  private rateLimitWindowStart: number = 0;
+  private jobsInCurrentWindow: number = 0;
 
   // Public methods
   public schedule<T>(
@@ -74,7 +76,6 @@ export class JobQueue {
   }
 
   private async processQueue(): Promise<void> {
-    let timedOut = false;
     if (
       this.isDisposed ||
       this.queue.length === 0 ||
@@ -83,14 +84,30 @@ export class JobQueue {
       return;
     }
 
-    // Check rate limiting
+    // Rate limiting logic
     const now = Date.now();
+    const windowSize = 60 * 1000; // 1 minute in ms
+    const maxJobsPerWindow = this.rateLimit;
+
+    // Initialize or reset the rate limit tracking
+    if (!this.rateLimitWindowStart) {
+      this.rateLimitWindowStart = now;
+      this.jobsInCurrentWindow = 0;
+    } else if (now - this.rateLimitWindowStart >= windowSize) {
+      // If the current window has expired, start a new one
+      this.rateLimitWindowStart = now;
+      this.jobsInCurrentWindow = 0;
+    }
+
+    // Check if we've exceeded the rate limit
     if (
-      this.rateLimit > 0 &&
-      now - this.lastRateLimitTime < 1000 / this.rateLimit
+      maxJobsPerWindow !== Infinity &&
+      this.jobsInCurrentWindow >= maxJobsPerWindow
     ) {
-      // We need to wait before processing the next job
-      const delay = 1000 / this.rateLimit - (now - this.lastRateLimitTime);
+      // Calculate when the next window starts
+      const nextWindowStart = this.rateLimitWindowStart + windowSize;
+      const delay = nextWindowStart - now;
+
       setTimeout(() => this.processQueue(), delay);
       return;
     }
@@ -98,36 +115,41 @@ export class JobQueue {
     // Get the next job
     const job = this.queue.shift()!;
     this.activeJobs++;
-    this.lastRateLimitTime = Date.now();
+    this.jobsInCurrentWindow++;
 
     try {
       const startTime = Date.now();
       const queueTime = startTime - job.queueTime;
-
-      // Set up timeout if needed
       let timeoutId: NodeJS.Timeout | null = null;
+      let timedOut = false;
 
-      if (this.timeoutLimit > 0) {
-        timeoutId = setTimeout(() => {
-          timedOut = true;
-          job.reject(new Error(`Job timed out after ${this.timeoutLimit}ms`));
-          this.activeJobs--;
-          this.processQueue();
-        }, this.timeoutLimit);
-      }
+      const jobPromise = new Promise<any>(async (resolve, reject) => {
+        if (this.timeoutLimit > 0) {
+          timeoutId = setTimeout(() => {
+            timedOut = true;
+            reject(new Error(`Job timed out after ${this.timeoutLimit}ms`));
+            this.activeJobs--;
+            this.processQueue();
+          }, this.timeoutLimit);
+        }
 
-      // Execute the job
-      const result = await job.fn(...job.args);
+        try {
+          const result = await job.fn(...job.args);
+          if (!timedOut) {
+            resolve(result);
+          }
+        } catch (error) {
+          if (!timedOut) {
+            reject(error);
+          }
+        } finally {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+        }
+      });
 
-      if (timedOut) {
-        // Job completed but already timed out - don't resolve/reject again
-        return;
-      }
-
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-
+      const result = await jobPromise;
       const executionTime = Date.now() - startTime;
 
       job.resolve({
@@ -138,16 +160,15 @@ export class JobQueue {
     } catch (error) {
       job.reject(error);
     } finally {
-      if (!timedOut) {
-        this.activeJobs--;
-      }
+      this.activeJobs--;
       this.processQueue();
     }
   }
 
   public constructor(options?: JobQueueOptions) {
     this.concurrencyLimit = options?.maxConcurrency ?? 1000;
-    this.rateLimit = options?.rateLimit ?? -1; // infinity
-    this.timeoutLimit = options?.timeoutLimit ?? 1200;
+    this.rateLimit = options?.rateLimit ?? Infinity; // infinity
+    this.timeoutLimit =
+      options?.timeoutLimit !== undefined ? options.timeoutLimit * 1000 : 12000;
   }
 }

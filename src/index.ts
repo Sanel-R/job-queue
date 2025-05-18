@@ -1,4 +1,5 @@
 import { JobQueue } from "./classes/JobQueue.js";
+import { JobQueueOptions } from "./types/types.js";
 
 const test = {
   passed: 0,

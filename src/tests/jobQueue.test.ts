@@ -571,14 +571,14 @@ async function runTests() {
 // Run all tests
 console.log("🚀 Starting JobQueue Tests...");
 console.time("Tests Duration");
-async () => {
-  try {
-    await runTests();
-    console.timeEnd("Tests Duration");
-    test.summary();
-  } catch (error) {
-    console.error("❌ Unhandled error in test suite:");
-    console.error(error);
-    process.exit(1);
-  }
-};
+
+// Run the tests and handle any unhandled errors
+(async () => {
+  await runTests();
+  console.timeEnd("Tests Duration");
+  test.summary();
+})().catch((error) => {
+  console.error("❌ Unhandled error in test suite:");
+  console.error(error);
+  process.exit(1);
+});
