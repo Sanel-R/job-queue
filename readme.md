@@ -27,7 +27,7 @@ project/
      npm init -y
     ```
   - **Create a index.js file**
-    ```npm
+    ```npm (Windows Machine -- Powershell)
       New-Item index.js -type file
     ```
   - **Tells the node to use module ECS**
@@ -39,9 +39,10 @@ project/
       npm install --save-dev @types/node
       npm install --save-dev ts-node
     ```
-  - **To ensure that NODE_OPTIONS="--loader ts-node/esm node ..." is executed, add cross platform support"**
+  - **Building the project & running the index.ts**
     ```
-      npm install --save-dev cross-env
+      npm run build
+      node .
     ```
   - **Test executions**
     ```

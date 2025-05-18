@@ -10,6 +10,13 @@ export class JobQueue {
   private rateLimitWindowStart: number = 0;
   private jobsInCurrentWindow: number = 0;
 
+  public constructor(options?: JobQueueOptions) {
+    this.concurrencyLimit = options?.maxConcurrency ?? 1000;
+    this.rateLimit = options?.rateLimit ?? Infinity;
+    this.timeoutLimit =
+      options?.timeoutLimit !== undefined ? options.timeoutLimit * 1000 : 12000;
+  }
+
   // Public methods
   public schedule<T>(
     fn: (...args: any[]) => Promise<T>,
@@ -162,12 +169,5 @@ export class JobQueue {
       this.activeJobs--;
       this.processQueue();
     }
-  }
-
-  public constructor(options?: JobQueueOptions) {
-    this.concurrencyLimit = options?.maxConcurrency ?? 1000;
-    this.rateLimit = options?.rateLimit ?? Infinity;
-    this.timeoutLimit =
-      options?.timeoutLimit !== undefined ? options.timeoutLimit * 1000 : 12000;
   }
 }
